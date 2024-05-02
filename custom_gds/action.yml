@@ -64,7 +64,7 @@ runs:
     - name: Checkout tt-support-tools repo
       uses: actions/checkout@v4
       with:
-        repository: tinytapeout/tt-support-tools
+        repository: htfab/tt-support-tools
         path: tt
         ref: tt07
 

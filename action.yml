@@ -48,7 +48,7 @@ runs:
 
     - name: Fetch verilog and build config
       shell: bash
-      run: ./tt/tt_tool.py --create-user-config
+      run: ./tt/tt_tool.py --create-user-config --openlane2
 
     - name: Install OpenLane
       shell: bash
@@ -59,7 +59,7 @@ runs:
 
     - name: Make GDS with OpenLane
       shell: bash
-      run: ./tt/tt_tool.py --harden
+      run: ./tt/tt_tool.py --harden --openlane2
 
     - name: Show build files (for debugging)
       shell: bash
@@ -107,15 +107,15 @@ runs:
 
     - name: Yosys warnings
       shell: bash
-      run: ./tt/tt_tool.py --print-warnings >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-warnings --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Routing summary
       shell: bash
-      run: ./tt/tt_tool.py --print-stats >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-stats --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Cell usage summary
       shell: bash
-      run: ./tt/tt_tool.py --print-cell-category >> $GITHUB_STEP_SUMMARY
+      run: ./tt/tt_tool.py --print-cell-category --openlane2 >> $GITHUB_STEP_SUMMARY
 
     - name: Publish build logs
       if: success() || failure()
@@ -130,7 +130,7 @@ runs:
       shell: bash
       run: |
         mkdir -p tt_submission
-        TOP_MODULE=$(./tt/tt_tool.py --print-top-module)
+        TOP_MODULE=$(./tt/tt_tool.py --print-top-module --openlane2)
         cp runs/wokwi/results/final/commit_id.json tt_submission/
         cp runs/wokwi/results/final/{gds,lef,spef}/${TOP_MODULE}.* tt_submission/
         cp runs/wokwi/results/final/verilog/gl/${TOP_MODULE}.v tt_submission/
@@ -153,7 +153,7 @@ runs:
     # Create and store PNG...
     - name: Render PNG from GDS
       shell: bash
-      run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+      run: './tt/tt_tool.py --create-png --openlane2 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
 
     - name: Upload gds_render (png) artifact
       uses: actions/upload-artifact@v4

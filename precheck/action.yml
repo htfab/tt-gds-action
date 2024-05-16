@@ -20,7 +20,7 @@ runs:
       with:
         repository: htfab/tt-support-tools
         path: tt
-        ref: tt07
+        ref: tt07-openlane2
 
     - name: Download GDS artifact
       uses: actions/download-artifact@v4

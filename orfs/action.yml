@@ -25,6 +25,8 @@ runs:
         sed 's/^ *//' << EOF >> $GITHUB_ENV
           FLOW=orfs
           FLOW_ARG=--orfs
+          OPENROAD_ROOT=${{ github.workspace }}/openroad
+          OPENROAD_COMMIT=69bd23c3778e5b7a81c414ddabab2ca81f6776d4
           IHP_PDK_ROOT=${{ github.workspace }}/pdk
           IHP_PDK_COMMIT=69c58d9ba56d8894c1499b2dd2689f5e22692704
           ORFS_ROOT=${{ github.workspace }}/orfs
@@ -59,17 +61,14 @@ runs:
       shell: bash
       run: ./tt/tt_tool.py --create-user-config $FLOW_ARG
 
-    - name: Install OpenROAD
+    - name: Update apt package lists
       shell: bash
-      run: |
-        wget https://github.com/Precision-Innovations/OpenROAD/releases/download/2024-09-05/openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
-        sudo apt-get install -y ./openroad_2.0_amd64-ubuntu22.04-2024-09-05.deb
-        echo "OPENROAD_EXE=$(command -v openroad)" >> $GITHUB_ENV
+      run: sudo apt-get -y update
 
     - name: Install KLayout
       shell: bash
       run: |
-        wget https://www.klayout.org/downloads/Ubuntu-22/klayout_0.29.7-1_amd64.deb
+        wget https://www.klayout.org/downloads/Ubuntu-24/klayout_0.29.7-1_amd64.deb
         sudo apt-get install -y ./klayout_0.29.7-1_amd64.deb
         pip install klayout==0.29.7
 
@@ -80,6 +79,37 @@ runs:
         wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2024-09-23/oss-cad-suite-linux-x64-20240923.tgz
         tar zxf oss-cad-suite-linux-x64-20240923.tgz && rm oss-cad-suite-linux-x64-20240923.tgz
         echo "YOSYS_EXE=/opt/oss-cad-suite/bin/yosys" >> $GITHUB_ENV
+
+    - name: Check out OpenROAD
+      uses: actions/checkout@v4
+      with:
+        repository: The-OpenROAD-Project/OpenROAD
+        ref: ${{ env.OPENROAD_COMMIT }}
+        path: ${{ env.OPENROAD_ROOT }}
+        submodules: recursive
+
+    - name: Install OpenROAD build dependencies
+      shell: bash
+      run: |
+        sudo apt-get install -y --no-install-recommends \
+            automake autotools-dev binutils bison build-essential ccache clang \
+            debhelper devscripts flex g++ gcc git groff lcov libffi-dev libgomp1 \
+            libomp-dev libpcre2-dev libpcre3-dev libreadline-dev libtcl pandoc \
+            python3-dev qt5-image-formats-plugins tcl tcl-dev tcl-tclreadline \
+            tcllib unzip wget zlib1g-dev libpython3.12 qt5-qmake qtbase5-dev \
+            qtbase5-dev-tools libqt5charts5-dev qtchooser \
+            liblemon-dev libspdlog-dev swig libboost-dev libgtest-dev \
+            libeigen3-dev
+
+    - name: Build OpenROAD
+      shell: bash
+      run: |
+        cd $OPENROAD_ROOT
+        mkdir build && cd build
+        cmake ..
+        make
+        sudo make install
+        echo "OPENROAD_EXE=$(command -v openroad)" >> $GITHUB_ENV
 
     - name: Check out ORFS
       uses: actions/checkout@v4

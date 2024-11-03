@@ -37,3 +37,15 @@ index 6778b387..63857c48 100644
  REMOVE_ABC_BUFFERS:
    description: >
      Remove abc buffers from the netlist.
+diff --git a/flow/scripts/resize.tcl b/flow/scripts/resize.tcl
+index 61ec9727..6bfa5049 100644
+--- a/flow/scripts/resize.tcl
++++ b/flow/scripts/resize.tcl
+@@ -9,6 +9,7 @@ set instance_count_before [sta::network_leaf_instance_count]
+ set pin_count_before [sta::network_leaf_pin_count]
+ 
+ set_dont_use $::env(DONT_USE_CELLS)
++set_dont_touch "*_notouch_"
+ 
+ # Do not buffer chip-level designs
+ # by default, IO ports will be buffered
